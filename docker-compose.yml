@@ -1,0 +1,74 @@
+version: "2"
+services:
+  base:
+    image: hpcnube-base-image:latest
+    build:
+      context: ./Base
+
+  namenode:
+    image: hpcnube-namenode-image:latest
+    container_name: hpcnube-namenode
+    build:
+      context: ./NameNode
+    #init: true
+    ports:
+      - 9870:9870
+    networks:
+      - hpcnube-net
+    depends_on: 
+      - base
+
+
+  resourcemanager:
+    image: hpcnube-resourcemanager-image:latest
+    container_name: hpcnube-resourcemanager
+    build:
+      context: ./ResourceManager
+    #init: true
+    ports:
+      - 8088:8088
+    networks:
+      - hpcnube-net
+    depends_on: 
+      - base
+
+
+  dnnm:
+    image: hpcnube-dnnm-image:latest
+    build:
+      context: ./DataNode-NodeManager
+    #init: true
+    networks:
+      - hpcnube-net
+    depends_on: 
+      - base
+
+
+  frontend:
+    image: hpcnube-frontend-image:latest
+    container_name: hpcnube-frontend
+    build:
+      context: ./Frontend
+    #init: true
+    ports:
+      - 22:22
+    networks:
+      - hpcnube-net
+    volumes:
+       - type: bind
+         source: ./src/codigos
+         target: /home/luser/codigos
+       - type: bind
+         source: ./src/datos
+         target: /home/luser/datos
+    depends_on: 
+      - base
+
+
+networks:
+  hpcnube-net:
+    name: hpcnube-net
+
+
+
+    

@@ -1,6 +1,16 @@
+####################################################################################################################################
 CLUSTER HADOOP CON DOCKERS
 
-PASOS:
+AUTOR: TOMÉ MASEDA DORADO
+
+####################################################################################################################################
+INSTRUCCIONES
+  - Pasos para levantar el cluster con Docker
+  - Pasos para levantar el cluster con Docker Compose
+
+####################################################################################################################################
+PASOS PARA LEVANTAR EL CLUSTER CON DOCKER
+####################################################################################################################################
 
 1. Constuir una imagen base con el software necesario. Le añadimos la etiqueta latest
 
@@ -140,3 +150,39 @@ En Linux, dado el modo bridge de la red, es posible acceder a esos interfaces us
   docker network rm hpcnube-net
 
 
+####################################################################################################################################
+PASOS PARA LEVANTAR EL CLUSTER CON DOCKER COMPOSE
+####################################################################################################################################
+
+¡ADVERTENCIA! En algunos plataformas, en mi caso, utilizando Docker Desktop sobre Windows, la construcción de las imágenes puede
+devolver un error porque intenta descargar la imagen "hpcnube-base-image" de la nube cuando es una imagen local. En tal caso, existe
+un workaround para que esta construcción se complete con éxito:
+
+  export DOCKER_BUILDKIT=0
+  export COMPOSE_DOCKER_CLI_BUILD=0
+
+1. Crear todas las imágenes y contenedores
+  
+  docker compose up --scale dnnm=4 -d
+
+2. Comprobar que podemos conectarnos al nodo frontend a través de SSH (password = luser)
+
+  ssh luser@locahost
+
+3. De nuevo, n caso de que el servidor devuelva el siguiente warning - WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
+      Generamos un nuevo par de claves SSH en nuestra máquina local para el servidor SSH localhost
+
+      ssh-keygen -R localhost
+
+4. Comprobar que hadoop se instalo correctamente en el nodo frontend
+
+  hadoop version
+
+5. Comprobar, a través del navegador, que podemos acceder al ResourceManager y al NameNode
+
+  ResourceManager - http://localhost:8080/
+  NameNode - http://localhost:9870/
+  
+6. Parar y eliminar todos los contenedores
+
+  docker compose down
